@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.steadon.saber.repository.mapper.AppMapper">
+
+    <select id="selectAppList" resultType="com.steadon.saber.model.dto.AppDto">
+        select id       as id,
+               app_id as app_id
+        from app_robot_merge
+        where is_deleted = 0
+          and feishu_app_id = #{feishuAppId}
+    </select>
+</mapper>

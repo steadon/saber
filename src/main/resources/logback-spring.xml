@@ -1,0 +1,40 @@
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <springProperty scope="context" name="LOG_LEVEL_PATTERN"
+                    source="logging.pattern.level" defaultValue="%5p"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){magenta} %highlight(%-5level)--- %clr([%thread]){red} %clr(%-40.40logger{39}){cyan} %clr(:){faint} [TID=%X{traceId:-N/A}]%m%n%wEx
+            </pattern>
+        </encoder>
+    </appender>
+    <appender name="RABBITMQ" class="org.springframework.amqp.rabbit.logback.AmqpAppender">
+        <layout>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level--- [%thread] %-40.40logger{39} : [TID=%X{traceId:-N/A}]%m%n%wEx
+            </pattern>
+        </layout>
+        <addresses>127.0.0.1:5672</addresses>
+        <username>admin</username>
+        <password>sipc@2023@saber</password>
+        <virtualHost>saber</virtualHost>
+        <declareExchange>true</declareExchange>
+        <exchangeType>direct</exchangeType>
+        <exchangeName>log.direct</exchangeName>
+        <routingKeyPattern>saber.log</routingKeyPattern>
+        <generateId>true</generateId>
+        <charset>UTF-8</charset>
+        <durable>true</durable>
+        <deliveryMode>PERSISTENT</deliveryMode>
+        <autoDelete>false</autoDelete>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="RABBITMQ"/>
+    </root>
+</configuration>

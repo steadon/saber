@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.steadon.saber.repository.mapper.NotificationRuleMapper">
+
+    <select id="selectVoPage" resultType="com.steadon.saber.model.dto.NotificationRuleDto">
+        select nr.id            as id,
+               nr.code          as code,
+               nr.description   as description,
+               t.id             as templateId,
+               t.name           as templateName,
+               g.id             as groupId,
+               g.name           as groupName,
+               nr.feishu_status as feishuStatus,
+               nr.sms_status    as smsStatus,
+               nr.email_status  as emailStatus,
+               nr.create_by     as createBy,
+               nr.create_time   as createtime,
+               nr.update_by     as updateBy,
+               nr.update_time   as updateTime
+        from notification_rule nr
+                 left join `group` g on g.id = nr.group_id and g.is_deleted = 0
+                 left join template t on t.id = nr.template_id and t.is_deleted = 0
+        where nr.is_deleted = 0
+        <if test="param.keyword != null and param.keyword != ''">
+            and (nr.code like concat('%', #{param.keyword}, '%') or nr.description like concat('%', #{param.keyword}, '%'))
+        </if>
+        <if test="param.type != 2">
+            and nr.type = #{param.type}
+        </if>
+        <choose>
+            <when test="'feishu'.equals(param.channel)">
+                and nr.feishu_status = 1
+            </when>
+            <when test="'email'.equals(param.channel)">
+                and nr.email_status = 1
+            </when>
+            <when test="'sms'.equals(param.channel)">
+                and nr.sms_status = 1
+            </when>
+        </choose>
+        <if test="param.groupId != 0">
+            and nr.group_id = #{param.groupId}
+        </if>
+        <if test="!'ROOT'.equals(appId)">
+            and nr.app_id = #{appId}
+        </if>
+        order by nr.create_time desc
+    </select>
+</mapper>

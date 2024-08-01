@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.steadon.saber.repository.mapper.ScheduledTaskMapper">
+
+    <update id="batchUpdate">
+        <if test="list != null and list.size() != 0">
+            <foreach collection="list" item="task" separator=";">
+                UPDATE scheduled_task
+                SET task_time = #{task.taskTime},
+                    uuid = #{task.uuid}
+                WHERE id = #{task.id}
+            </foreach>
+        </if>
+    </update>
+    <select id="queryListBySift" resultType="com.steadon.saber.model.dto.ScheduledTaskDto">
+        select st.id,
+               nr.code as ruleCode,
+               st.task_time as taskTime,
+               st.start_time as startTime,
+               st.end_time as endTime,
+               st.task_type as taskType,
+               nr.feishu_status as feishu,
+               nr.sms_status as sms,
+               nr.email_status as email,
+               nr.group_id as groupId,
+               st.create_by as createBy,
+               st.create_time as createTime
+        from scheduled_task as st
+        left join notification_rule as nr on nr.id = st.rule_id
+        <where>
+            <if test="sift != null">
+                <if test="sift.channel != null">
+                    <if test="sift.channel.feishu != null and sift.channel.feishu == true">
+                        and nr.feishu_status = true
+                    </if>
+                    <if test="sift.channel.sms != null and sift.channel.sms == true">
+                        and nr.sms_status = true
+                    </if>
+                    <if test="sift.channel.email != null and sift.channel.email == true">
+                        and nr.email_status = true
+                    </if>
+                </if>
+                <if test="sift.groupId != null">
+                    and nr.group_id = #{sift.groupId}
+                </if>
+                <if test="sift.taskType != null">
+                    and st.task_type = #{sift.taskType}
+                </if>
+                <if test="sift.isCreate != null and sift.isCreate == true">
+                    and st.create_by = #{createBy}
+                </if>
+            </if>
+        </where>
+        <if test="sift != null">
+            <if test="sift.sortType != null">
+                <if test="sift.sortType == 0">
+                    order by st.start_time asc
+                </if>
+                <if test="sift.sortType == 1">
+                    order by st.start_time desc
+                </if>
+                <if test="sift.sortType == 2">
+                    order by st.end_time asc
+                </if>
+                <if test="sift.sortType == 3">
+                    order by st.end_time desc
+                </if>
+                <if test="sift.sortType == 4">
+                    order by st.create_time asc
+                </if>
+                <if test="sift.sortType == 5">
+                    order by st.create_time desc
+                </if>
+            </if>
+        </if>
+    </select>
+</mapper>

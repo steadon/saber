@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.steadon.saber.repository.mapper.GroupMapper">
+
+    <select id="queryUserInfoById" resultType="com.steadon.saber.model.dto.UserInfoDto">
+        select u.id          as id,
+               u.name        as name,
+               u.department  as department
+        from `group` g
+                 left join group_user_merge gum on g.id = gum.group_id and gum.is_deleted = 0
+                 left join user_info u on gum.uid = u.id and u.is_deleted = 0
+        where g.id = #{id}
+          and g.is_deleted = 0
+    </select>
+</mapper>
